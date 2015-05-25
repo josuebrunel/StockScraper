@@ -2,8 +2,10 @@
 
 import sys, httplib, urllib
 
-try: import simplejson as json
-except ImportError: import json
+try: 
+    import simplejson as json
+except ImportError: 
+    import json
 
 PUBLIC_API_URL = 'http://query.yahooapis.com/v1/public/yql'
 DATATABLES_URL = 'store://datatables.org/alltableswithkeys'
@@ -28,8 +30,6 @@ class QueryError(Exception):
 	def __init__(self, value):
 		self.value = value
 
-
-
 	def __str__(self):
 		return repr(self.value)
   
@@ -51,8 +51,7 @@ def __validate_response(response, tagToCheck):
 		quoteInfo = response['query']['results'][tagToCheck]
 	else:
 		if 'error' in response:
-			raise QueryError('YQL query failed with error: "%s".' 
-				% response['error']['description'])
+			raise QueryError('YQL query failed with error: "%s".' % response['error']['description'])
 		else:
 			raise QueryError('YQL response malformed.')
 	return quoteInfo
@@ -72,21 +71,27 @@ def get_current_info(symbolList, columnsToRetrieve='*'):
 	return __validate_response(response, 'quote')
 
 
-
-def get_historical_info(symbol):
+def get_historical_info(symbol,columns=None, startDate=None, endDate=None, limit=None):
 	"""Retrieves historical stock data for the provided symbol.
 	Historical data includes date, open, close, high, low, volume,
-	and adjusted close."""
-	
-	yql = 'select * from csv where url=\'%s\'' \
-		  ' and columns=\"Date,Open,High,Low,Close,Volume,AdjClose\"' \
-		   % (HISTORICAL_URL + symbol)
+	and adjusted close.
+        """
+        columns = ','.join(columns) if columns else '*'
+
+        yql = "select {0} from {1} where symbol='{2}' ".format(columns,'yahoo.finance.historicaldata',symbol)
+
+        if startDate:
+            yql += "and startDate = '{0}' ".format(startDate)
+        if endDate:
+            yql += "and endDate = '{0}' ".format(endDate)
+        if limit:
+            yql += "limit={0}".format(limit)
+
 	results = executeYQLQuery(yql)
 	# delete first row which contains column names
 	del results['query']['results']['row'][0]
 	return results['query']['results']['row']
 	
-
 
 def get_news_feed(symbol):
 	"""Retrieves the rss feed for the provided symbol."""
