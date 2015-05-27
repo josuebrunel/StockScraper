@@ -85,12 +85,10 @@ def get_historical_info(symbol,columns=None, startDate=None, endDate=None, limit
         if endDate:
             yql += "and endDate = '{0}' ".format(endDate)
         if limit:
-            yql += "limit={0}".format(limit)
+            yql += "limit {0}".format(limit)
 
 	results = executeYQLQuery(yql)
-	# delete first row which contains column names
-	del results['query']['results']['row'][0]
-	return results['query']['results']['row']
+	return __validate_response(results, 'quote')
 	
 
 def get_news_feed(symbol):
