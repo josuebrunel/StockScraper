@@ -11,11 +11,14 @@ PUBLIC_API_URL = 'http://query.yahooapis.com/v1/public/yql'
 DATATABLES_URL = 'store://datatables.org/alltableswithkeys'
 HISTORICAL_URL = 'http://ichart.finance.yahoo.com/table.csv?s='
 RSS_URL = 'http://finance.yahoo.com/rss/headline?s='
-FINANCE_TABLES = {'quotes': 'yahoo.finance.quotes',
-                 'options': 'yahoo.finance.options',
-                 'quoteslist': 'yahoo.finance.quoteslist',
-                 'sectors': 'yahoo.finance.sectors',
-                 'industry': 'yahoo.finance.industry'}
+FINANCE_TABLES = {
+        'quotes': 'yahoo.finance.quotes',
+        'options': 'yahoo.finance.options',
+        'quoteslist': 'yahoo.finance.quoteslist',
+        'sectors': 'yahoo.finance.sectors',
+        'industry': 'yahoo.finance.industry',
+        'historical': 'yahoo.finance.historicaldata'
+}
 
 				 
 def executeYQLQuery(yql):
@@ -78,7 +81,7 @@ def get_historical_info(symbol,columns=None, startDate=None, endDate=None, limit
         """
         columns = ','.join(columns) if columns else '*'
 
-        yql = "select {0} from {1} where symbol='{2}' ".format(columns,'yahoo.finance.historicaldata',symbol)
+        yql = "select {0} from {1} where symbol='{2}' ".format(columns,FINANCE_TABLES['historical'],symbol)
 
         if startDate:
             yql += "and startDate = '{0}' ".format(startDate)
