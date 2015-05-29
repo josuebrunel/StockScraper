@@ -1,6 +1,8 @@
 """A wrapper for the Yahoo! Finance YQL api."""
 
 import sys, httplib, urllib
+import datetime
+from datetime import date, timedelta
 
 try: 
     import simplejson as json
@@ -82,11 +84,15 @@ def get_historical_info(symbol,columns=None, startDate=None, endDate=None, limit
         columns = ','.join(columns) if columns else '*'
 
         yql = "select {0} from {1} where symbol='{2}' ".format(columns,FINANCE_TABLES['historical'],symbol)
+        
+        # If startDate and endDate are not provide, we take a range of date in the last month
+        today = date.today()
+        start = datetime.date(day=today.day-7,month=today.month-1,year=today.year)
+        end = datetime.date(day=today.day-1,month=today.month-1,year=today.year)
 
-        if startDate:
-            yql += "and startDate = '{0}' ".format(startDate)
-        if endDate:
-            yql += "and endDate = '{0}' ".format(endDate)
+        yql += "AND startDate = '{0}'".format(startDate if startDate else str(start))
+        yql += "AND endDate = '{0}'".format(endDate if endDate else str(end))
+
         if limit:
             yql += "limit {0}".format(limit)
 
